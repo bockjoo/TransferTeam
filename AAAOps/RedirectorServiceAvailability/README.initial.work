@@ -106,11 +106,8 @@ The work started by Fernando is completed by merging the ping check capability a
 
 
 References
-
-[0] https://docs.google.com/document/d/1m3lLdb87pdlp-NgrPdaWrWdx0Gwdr8zEosBJyPnc708/edit
-
-[1] https://docs.google.com/document/d/12e9jadgaoHaqD3C6p1gMwyVbdVqKwD8ZJXrC6J2dtjg/edit#
-
+[0] ...
+[1] ...
 [2] https://monit-grafana.cern.ch/d/serviceAvailability/overview-service-availability?orgId=11&var-category=All
 
 [3] https://gitlab.cern.ch/ai/it-puppet-hostgroup-vocms/-/blob/qa/code/manifests/xrootd/monitor.pp
