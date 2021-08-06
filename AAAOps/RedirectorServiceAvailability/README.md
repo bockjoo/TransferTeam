@@ -5,8 +5,7 @@ Introduction
 
 - This directory contains the xrootd redirector probe and the metric uploader.
 - Currently the probe and the uploader run  on one of the AAA vocms machines
-- Details can be viewed from https://twiki.cern.ch/twiki/bin/view/CMSPublic/CompOpsCentralServicesXrootd
-- and https://twiki.cern.ch/twiki/bin/view/CMSPublic/CompOpsAAAOperationsGuide#Monitoring
+- Details can be viewed from https://twiki.cern.ch/twiki/bin/view/CMSPublic/CompOpsCentralServicesXrootd and https://twiki.cern.ch/twiki/bin/view/CMSPublic/CompOpsAAAOperationsGuide#Monitoring
 
 Deploying the probe, the uploader, and the cron
 ---
