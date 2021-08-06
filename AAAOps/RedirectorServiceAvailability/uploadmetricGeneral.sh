@@ -1,13 +1,15 @@
 #bin/sh
 
+notifytowhom=cms-comp-ops-transfer-team@cernNOSPAMPLEASE.ch
 
 DATE=$(date)
 echo $DATE
 echo "ExecutingScript"
 
-cd /opt/TransferTeam.Jhonatan/AAAOps/XfedKibana_JSON
-
+cd /opt/TransferTeam/AAAOps/RedirectorServiceAvailability
+[ -d logs ] || mkdir -p logs
 logs=logs
+thelog=$(pwd)/logs/uploadmetricGeneral.log
 
 # General script
 date
@@ -24,11 +26,11 @@ cat $logs/XRDFED_send.log
 date
 echo INFO Done
 
-if [ -f /opt/TransferTeam.Jhonatan/AAAOps/XfedKibana_JSON/logs/uploadmetricGeneral.log ] ; then
+if [ -f $thelog ] ; then
    a=1
    [ $status -eq 0 ] && { grep -q -i "caught overall timeout" $logs/XRDFED_probe_json.log ; [ $(expr $a + $?) -eq $a ] && status=1 ; } ;
    if [ $status -ne 0 ] ; then
-      printf "$(/bin/hostname) $(basename $0)\n$(date)\n$(ls -al /opt/TransferTeam.Jhonatan/AAAOps/XfedKibana_JSON/logs/uploadmetricGeneral.log)\n$(cat /opt/TransferTeam.Jhonatan/AAAOps/XfedKibana_JSON/logs/uploadmetricGeneral.log)\n" | mail -s "$(/bin/hostname) uploadmetricGeneral.log" bockjoo@gmail.com -a /opt/TransferTeam.Jhonatan/AAAOps/XfedKibana_JSON/logs/uploadmetricGeneral.log
+      printf "$(/bin/hostname) $(basename $0)\n$(date)\n$(ls -al $thelog )\n$(cat $thelog)\n" | mail -s "$(/bin/hostname) $(basename $thelog)" $(echo $notifytowhom | sed 's#NOSPAMPLEASE##') -a $thelog
    fi
 fi
 
