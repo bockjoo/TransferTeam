@@ -30,7 +30,7 @@ html_dir = '/var/www/html/aaa-probe/'   # will create per-service json files her
 LOCKFILE='/var/lock/subsys/xrdfed-kibana-probe-general'
 # Bockjoo Uncomment and comment a line below 
 #probes_json='KIBANA_PROBES.json'
-#probes_json='KIBANA_PROBES_GENERAL.json'
+probes_json='KIBANA_PROBES_GENERAL.json'
 timeout_sec = 10 * 60
 class Alarm(Exception):
     pass
