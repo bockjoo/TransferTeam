@@ -70,7 +70,8 @@ def main():
 
     try:
         path="/var/www/html/aaa-probe/"
-        filename="KIBANA_PROBES.json"
+        #filename="KIBANA_PROBES.json"
+        filename="KIBANA_PROBES_GENERAL.json"
         print("Opening and sending documents")
         openjson_send(path,filename,metric_name,timestamp)
         print("Done")
@@ -78,5 +79,6 @@ def main():
     except Exception:
         print("Exception in checker procedure:")
         traceback.print_exc()
+        sys.exit(2)
 if __name__=="__main__":
     sys.exit(main())
