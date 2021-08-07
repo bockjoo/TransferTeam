@@ -11,6 +11,8 @@ import traceback
 import time
 from datetime import datetime
 
+html_dir = '/var/www/html/aaa-probe/'
+probes_json='KIBANA_PROBES_GENERAL.json'
 
 def update_dic_metrics(dic,metric_name,timestamp):
     dic.update({'producer':'cmsaaa'})
@@ -69,11 +71,8 @@ def main():
     timestamp=int(datetime.timestamp(now))*1000
 
     try:
-        path="/var/www/html/aaa-probe/"
-        #filename="KIBANA_PROBES.json"
-        filename="KIBANA_PROBES_GENERAL.json"
         print("Opening and sending documents")
-        openjson_send(path,filename,metric_name,timestamp)
+        openjson_send(html_dir,probes_json,metric_name,timestamp)
         print("Done")
 
     except Exception:
