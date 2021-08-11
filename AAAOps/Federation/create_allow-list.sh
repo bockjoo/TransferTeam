@@ -5,12 +5,21 @@ FEDINFO=/opt/TransferTeam/AAAOps/Federation/
 export XRD_NETWORKSTACK=IPv4
 
 declare -a redirectors=("cms-xrd-global01.cern.ch:1094" "cms-xrd-global02.cern.ch:1094" "cms-xrd-transit.cern.ch:1094")
-
-for j in "${redirectors[@]}";do
-	if [ "$j" == "cms-xrd-global01.cern.ch:1094" ] || [ "$j" == "cms-xrd-global02.cern.ch:1094" ]; then
-		#query european reginal redirectors
-		xrdmapc --list all "$j" | grep -E 'xrootd.ba.infn.it|xrootd-redic.pi.infn.it|llrxrd-redir.in2p3.fr:1094' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmp_euRED_$j	
-		xrdmapc --list all "$j" | grep -E 'cmsxrootd2.fnal.gov|xrootd.unl.edu' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmp_usRED_$j
+declare -a redirectors_eu=("xrootd.ba.infn.it" "xrootd-redic.pi.infn.it" "llrxrd-redir.in2p3.fr") # bockjoo
+declare -a redirectors_us=("cmsxrootd2.fnal.gov" "xrootd.unl.edu") # bockjoo
+nred=${#redirectors[@]} # bockjoo
+# bockjoo original for j in "${redirectors[@]}";do
+for j in $(seq 0 $(expr $nred - 1)) ; do # bockjoo
+	#bockjoo original if [ "$j" == "cms-xrd-global01.cern.ch:1094" ] || [ "$j" == "cms-xrd-global02.cern.ch:1094" ]; then
+        if [ "${redirectors[$j]}" == "cms-xrd-global01.cern.ch:1094" ] || [ "${redirectors[$j]}" == "cms-xrd-global02.cern.ch:1094" ]; then
+ 		#query european reginal redirectors
+		xrdmapc --list all "${redirectors[$j]}" 2>/dev/null 1>$BASE/xrdmapc_all_${j}.txt # bockjoo
+		redir_search_eu=$(echo ${redirectors_eu[@]}  | sed 's# #|#g') # bockjoo
+		redir_search_us=$(echo ${redirectors_us[@]}  | sed 's# #|#g') # bockjoo
+		cat $BASE/xrdmapc_all_${j}.txt | grep -E "$redir_search_eu" | awk '{print $3}' | cut -d ':' -f1 | sort -u > $BASE/tmp_euRED_$j # bockjoo
+		cat $BASE/xrdmapc_all_${j}.txt | grep -E "$redir_search_us" | awk '{print $3}' | cut -d ':' -f1 | sort -u > $BASE/tmp_usRED_$j # bockjoo
+		#bockjoo original xrdmapc --list all "$j" | grep -E 'xrootd.ba.infn.it|xrootd-redic.pi.infn.it|llrxrd-redir.in2p3.fr:1094' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmp_euRED_$j	
+		#bockjoo original xrdmapc --list all "$j" | grep -E 'cmsxrootd2.fnal.gov|xrootd.unl.edu' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmp_usRED_$j
 		for i in $(cat $BASE/tmp_euRED_$j);do
 			xrdmapc --list all $i:1094 > $BASE/tmp_$i
 			cat $BASE/tmp_$i | awk '{if($2=="Man") print $3; else print $2}' | tail -n +2 >> $BASE/tmp_total_eu_$j
