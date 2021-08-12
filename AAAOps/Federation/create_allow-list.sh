@@ -20,13 +20,16 @@ for j in $(seq 0 $(expr $nred - 1)) ; do # bockjoo
 		cat $BASE/xrdmapc_all_${j}.txt | grep -E "$redir_search_us" | awk '{print $3}' | cut -d ':' -f1 | sort -u > $BASE/tmp_usRED_$j # bockjoo
 		#bockjoo original xrdmapc --list all "$j" | grep -E 'xrootd.ba.infn.it|xrootd-redic.pi.infn.it|llrxrd-redir.in2p3.fr:1094' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmp_euRED_$j	
 		#bockjoo original xrdmapc --list all "$j" | grep -E 'cmsxrootd2.fnal.gov|xrootd.unl.edu' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmp_usRED_$j
+		nline=$(wc -l $BASE/xrdmapc_all_${j}.txt | awk '{print $1}') # bockjoo
 		for i in $(cat $BASE/tmp_euRED_$j);do
-			xrdmapc --list all $i:1094 > $BASE/tmp_$i
+		        grep -A $nline "Man ${i}:1094" $BASE/xrdmapc_all_${j}.txt | grep -A $nline -m 1 "^1 " > $BASE/tmp_$i #bockjoo look for level 1 Manager
+			#bockjoo original xrdmapc --list all $i:1094 > $BASE/tmp_$i
 			cat $BASE/tmp_$i | awk '{if($2=="Man") print $3; else print $2}' | tail -n +2 >> $BASE/tmp_total_eu_$j
 		done
 		
 		for k in $(cat $BASE/tmp_usRED_$j);do
-			xrdmapc --list all $k:1094 > $BASE/tmp_us_$k	
+			grep -A $nline "Man ${i}:1094" $BASE/xrdmapc_all_${j}.txt | grep -A $nline -m 1 "^1 " > $BASE/tmp_$i #bockjoo
+			#bockjoo original xrdmapc --list all $k:1094 > $BASE/tmp_us_$k	
 			cat $BASE/tmp_us_$k | awk '{if($2=="Man") print $3; else print $2}' | tail -n +2 >> $BASE/tmp_total_us_$j
 		done
 	
