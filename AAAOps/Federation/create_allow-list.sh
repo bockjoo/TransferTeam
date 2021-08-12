@@ -1,69 +1,73 @@
 #!/bin/bash
 
-BASE=/root/
-FEDINFO=/opt/TransferTeam/AAAOps/Federation/
+#bockjoo original BASE=/root/
+BASE=/tmp
+FEDINFO=/opt/TransferTeam/AAAOps/FederationNew/
 export XRD_NETWORKSTACK=IPv4
 
 declare -a redirectors=("cms-xrd-global01.cern.ch:1094" "cms-xrd-global02.cern.ch:1094" "cms-xrd-transit.cern.ch:1094")
 declare -a redirectors_eu=("xrootd.ba.infn.it" "xrootd-redic.pi.infn.it" "llrxrd-redir.in2p3.fr") # bockjoo
 declare -a redirectors_us=("cmsxrootd2.fnal.gov" "xrootd.unl.edu") # bockjoo
 nred=${#redirectors[@]} # bockjoo
+
+rm -f $BASE/tmpNew_*
+
 # bockjoo original for j in "${redirectors[@]}";do
 for j in $(seq 0 $(expr $nred - 1)) ; do # bockjoo
 	#bockjoo original if [ "$j" == "cms-xrd-global01.cern.ch:1094" ] || [ "$j" == "cms-xrd-global02.cern.ch:1094" ]; then
         if [ "${redirectors[$j]}" == "cms-xrd-global01.cern.ch:1094" ] || [ "${redirectors[$j]}" == "cms-xrd-global02.cern.ch:1094" ]; then
  		#query european reginal redirectors
-		xrdmapc --list all "${redirectors[$j]}" 2>/dev/null 1>$BASE/xrdmapc_all_${j}.txt # bockjoo
+		xrdmapc --list all "${redirectors[$j]}" 2>/dev/null 1>$FEDINFO/out/xrdmapc_all_${j}.txt # bockjoo
 		redir_search_eu=$(echo ${redirectors_eu[@]}  | sed 's# #|#g') # bockjoo
 		redir_search_us=$(echo ${redirectors_us[@]}  | sed 's# #|#g') # bockjoo
-		cat $BASE/xrdmapc_all_${j}.txt | grep -E "$redir_search_eu" | awk '{print $3}' | cut -d ':' -f1 | sort -u > $BASE/tmp_euRED_$j # bockjoo
-		cat $BASE/xrdmapc_all_${j}.txt | grep -E "$redir_search_us" | awk '{print $3}' | cut -d ':' -f1 | sort -u > $BASE/tmp_usRED_$j # bockjoo
-		#bockjoo original xrdmapc --list all "$j" | grep -E 'xrootd.ba.infn.it|xrootd-redic.pi.infn.it|llrxrd-redir.in2p3.fr:1094' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmp_euRED_$j	
-		#bockjoo original xrdmapc --list all "$j" | grep -E 'cmsxrootd2.fnal.gov|xrootd.unl.edu' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmp_usRED_$j
-		nline=$(wc -l $BASE/xrdmapc_all_${j}.txt | awk '{print $1}') # bockjoo
-		for i in $(cat $BASE/tmp_euRED_$j);do
-		        grep -A $nline "Man ${i}:1094" $BASE/xrdmapc_all_${j}.txt | grep -A $nline -m 1 "^1 " > $BASE/tmp_$i #bockjoo look for level 1 Manager
-			#bockjoo original xrdmapc --list all $i:1094 > $BASE/tmp_$i
-			cat $BASE/tmp_$i | awk '{if($2=="Man") print $3; else print $2}' | tail -n +2 >> $BASE/tmp_total_eu_$j
+		cat $FEDINFO/out/xrdmapc_all_${j}.txt | grep -E "$redir_search_eu" | awk '{print $3}' | cut -d ':' -f1 | sort -u > $BASE/tmpNew_euRED_${redirectors[$j]} # bockjoo
+		cat $FEDINFO/out/xrdmapc_all_${j}.txt | grep -E "$redir_search_us" | awk '{print $3}' | cut -d ':' -f1 | sort -u > $BASE/tmpNew_usRED_${redirectors[$j]} # bockjoo
+		#bockjoo original xrdmapc --list all "$j" | grep -E 'xrootd.ba.infn.it|xrootd-redic.pi.infn.it|llrxrd-redir.in2p3.fr:1094' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmpNew_euRED_$j	
+		#bockjoo original xrdmapc --list all "$j" | grep -E 'cmsxrootd2.fnal.gov|xrootd.unl.edu' | awk '{print $3}' | cut -d ':' -f1 > $BASE/tmpNew_usRED_$j
+		nline=$(wc -l $FEDINFO/out/xrdmapc_all_${j}.txt | awk '{print $1}') # bockjoo
+		for i in $(cat $BASE/tmpNew_euRED_${redirectors[$j]});do
+		        grep -A $nline "Man ${i}:1094" $FEDINFO/out/xrdmapc_all_${j}.txt | grep -A $nline -m 1 "^1 " > $BASE/tmpNew_$i #bockjoo look for level 1 Manager
+			#bockjoo original xrdmapc --list all $i:1094 > $BASE/tmpNew_$i
+			cat $BASE/tmpNew_$i | awk '{if($2=="Man") print $3; else print $2}' | tail -n +2 >> $BASE/tmpNew_total_eu_${redirectors[$j]}
 		done
 		
-		for k in $(cat $BASE/tmp_usRED_$j);do
-			grep -A $nline "Man ${i}:1094" $BASE/xrdmapc_all_${j}.txt | grep -A $nline -m 1 "^1 " > $BASE/tmp_$i #bockjoo
-			#bockjoo original xrdmapc --list all $k:1094 > $BASE/tmp_us_$k	
-			cat $BASE/tmp_us_$k | awk '{if($2=="Man") print $3; else print $2}' | tail -n +2 >> $BASE/tmp_total_us_$j
+		for k in $(cat $BASE/tmpNew_usRED_${redirectors[$j]});do
+			grep -A $nline "Man ${k}:1094" $FEDINFO/out/xrdmapc_all_${j}.txt | grep -A $nline -m 1 "^1 " > $BASE/tmpNew_us_$k #bockjoo
+			#bockjoo original xrdmapc --list all $k:1094 > $BASE/tmpNew_us_$k	
+			cat $BASE/tmpNew_us_$k | awk '{if($2=="Man") print $3; else print $2}' | tail -n +2 >> $BASE/tmpNew_total_us_${redirectors[$j]}
 		done
 	
 
-		cat $BASE/tmp_total_eu_$j | cut -d : -f1 | grep -v "\[" | sort -u > $FEDINFO/in/prod_$j.txt 
-		cat $BASE/tmp_total_us_$j | cut -d : -f1 | grep -v "\[" | sort -u >> $FEDINFO/in/prod_$j.txt 
-		cat $BASE/tmp_total_eu_$j | cut -d : -f1 | grep -v "\[" | sort -u | awk -F. '{print "*."$(NF-2)"."$(NF-1)"."$NF}' | sort -u > $FEDINFO/out/list_eu_$j.allow
-		cat $BASE/tmp_total_us_$j | cut -d : -f1 | grep -v "\[" | sort -u | awk -F. '{print "*."$(NF-2)"."$(NF-1)"."$NF}' | sort -u > $FEDINFO/out/list_us_$j.allow
-		rm hostIPv4.txt hostIPv6.txt
-		for f in $(cat $FEDINFO/in/prod_$j.txt);do
+		cat $BASE/tmpNew_total_eu_${redirectors[$j]} | cut -d : -f1 | grep -v "\[" | sort -u > $FEDINFO/in/prod_${redirectors[$j]}.txt 
+		cat $BASE/tmpNew_total_us_${redirectors[$j]} | cut -d : -f1 | grep -v "\[" | sort -u >> $FEDINFO/in/prod_${redirectors[$j]}.txt 
+		cat $BASE/tmpNew_total_eu_${redirectors[$j]} | cut -d : -f1 | grep -v "\[" | sort -u | awk -F. '{print "*."$(NF-2)"."$(NF-1)"."$NF}' | sort -u > $FEDINFO/out/list_eu_${redirectors[$j]}.allow
+		cat $BASE/tmpNew_total_us_${redirectors[$j]} | cut -d : -f1 | grep -v "\[" | sort -u | awk -F. '{print "*."$(NF-2)"."$(NF-1)"."$NF}' | sort -u > $FEDINFO/out/list_us_${redirectors[$j]}.allow
+		rm -f $FEDINFO/out/hostIPv4.txt $FEDINFO/out/hostIPv6.txt
+		for f in $(cat $FEDINFO/in/prod_${redirectors[$j]}.txt);do
 			if [ "$f" != "${1#*[0-9].[0-9]}" ]; then
-				echo $f >> hostIPv4.txt 
+				echo $f >> $FEDINFO/out/hostIPv4.txt 
 			elif [ "$f" != "${1#*:[0-9a-fA-F]}" ]; then
-				echo $f >> hostIPv6.txt
+				echo $f >> $FEDINFO/out/hostIPv6.txt
 			fi
 		
 
 		done	
 	else
-		xrdmapc --list all "$j" | tail -n +2 | awk '{if($2=="Man") print $3; else print $2}' > $BASE/tmp_total
-		cat $BASE/tmp_total | cut -d : -f1 | sort -u > $FEDINFO/in/trans.txt
+		xrdmapc --list all "${redirectors[$j]}" | tail -n +2 | awk '{if($2=="Man") print $3; else print $2}' > $BASE/tmpNew_total
+		cat $BASE/tmpNew_total | cut -d : -f1 | sort -u > $FEDINFO/in/trans.txt
 		
-		rm transit-hostIPv4.txt transit-hostIPv6.txt
+		rm -f $FEDINFO/out/transit-hostIPv4.txt $FEDINFO/out/transit-hostIPv6.txt
 		for f in $(cat $FEDINFO/in/trans.txt);do
 			if [ "$f" != "${1#*[0-9].[0-9]}" ]; then
-				echo $f >> transit-hostIPv4.txt 
+				echo $f >> $FEDINFO/out/transit-hostIPv4.txt 
 			elif [ "$f" != "${1#*:[0-9a-fA-F]}" ]; then
-				echo $f >> transit-hostIPv6.txt
+				echo $f >> $FEDINFO/out/transit-hostIPv6.txt
 			fi
 		done	
 	fi	
 	  
 
-	rm $BASE/tmp_*
+	#rm $BASE/tmpNew_*
 
 done
 
